@@ -27,7 +27,8 @@ app.post('/users', checksExistsUserAccount, (request, response) => {
     name,
     username,
     id: uuidv4(),
-    todos: []
+    todos: [],
+    created_at: new Date() 
   })
 
   return response.status(201).json(users);
@@ -42,15 +43,46 @@ app.get('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const {title, deadline} = request.body;
+  const {username} = request.headers;
+
+  const todos = users.find(user => user.username === username).todos;
+
+  todos.push({
+    id: uuidv4(),
+    title,
+    done: false,
+    deadline: new Date(deadline),
+    created_at: new Date()
+  })
+
+  return response.status(201).json(todos)
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { username } = request.headers;
+  const { title, deadline } = request.body;
+  const {id} = request.params;
+
+  const todos = users.find(user => user.username === username).todos;
+  const todo = todos.find(todo => todo.id === id)
+
+  todo.title = title;
+  todo.deadline = deadline;
+
+  return response.status(201).json(todo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { username } = request.headers;
+  const { id } = request.params;
+
+  const todos = users.find(user => user.username === username).todos;
+  const todo = todos.find(todo => todo.id === id);
+
+  todo.done = true;
+
+  return response.status(201).json(todo);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
